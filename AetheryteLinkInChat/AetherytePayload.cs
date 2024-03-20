@@ -6,7 +6,7 @@ using Lumina.Excel.GeneratedSheets;
 
 namespace Divination.AetheryteLinkInChat;
 
-public sealed class AetherytePayload : DalamudLinkPayload
+public sealed class AetherytePayload : Payload
 {
     // 未使用だと思われる
     private const byte EmbeddedInfoTypeByte = (byte)(EmbeddedInfoType.DalamudLink + 1);
