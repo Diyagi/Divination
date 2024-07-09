@@ -34,6 +34,8 @@ public sealed class FaloopIntegration : DivinationPlugin<FaloopIntegration, Plug
     public PluginStatus Status;
     private List<MobSpawnEvent> spawnEvents = [];
 
+    private bool getActiveReportsCalled;
+
     public FaloopIntegration(IDalamudPluginInterface pluginInterface) : base(pluginInterface)
     {
         Config = pluginInterface.GetPluginConfig() as PluginConfig ?? new PluginConfig();
@@ -68,6 +70,32 @@ public sealed class FaloopIntegration : DivinationPlugin<FaloopIntegration, Plug
     {
         currentWorld = Dalamud.ClientState.LocalPlayer?.CurrentWorld?.GameData;
         homeWorld = Dalamud.ClientState.LocalPlayer?.HomeWorld?.GameData;
+        Task.Run(async () => await GetActiveReports());
+    }
+
+    private async Task GetActiveReports()
+    {
+        if (getActiveReportsCalled || !session.IsLoggedIn || currentWorld == null)
+            return;
+
+        var dataCenter = currentWorld.DataCenter.Value!.Name.RawString.ToLower();
+
+        try
+        {
+            var dcActiveReports = await session.GetActiveReportsAsync(dataCenter);
+
+            foreach (var report in dcActiveReports)
+            {
+                 OnMobReport(report);
+                 DalamudLog.Log.Info($"{report.Ids.MobId}");
+            }
+
+            getActiveReportsCalled = true;
+        }
+        catch (Exception exception)
+        {
+            DalamudLog.Log.Error(exception, "GetActiveReports failed");
+        }
     }
 
     private void OnConnected()
@@ -380,6 +408,7 @@ public sealed class FaloopIntegration : DivinationPlugin<FaloopIntegration, Plug
             {
                 if (await session.LoginAsync(Config.FaloopUsername, Config.FaloopPassword))
                 {
+                    await GetActiveReports();
                     await socket.Connect(session);
                 }
             }

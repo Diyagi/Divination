@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using Lumina.Excel.GeneratedSheets;
 
 namespace Divination.FaloopIntegration.Faloop.Model;
 
@@ -34,8 +36,7 @@ public record MobReportData(
 public record MobReportIds(
     [property: JsonPropertyName("mobId")] string MobId,
     [property: JsonPropertyName("worldId")] string WorldId,
-    [property: JsonPropertyName("zoneInstance")] int ZoneInstance
-);
+    [property: JsonPropertyName("zoneInstance")] int ZoneInstance);
 
 public static class MobReportActions
 {
